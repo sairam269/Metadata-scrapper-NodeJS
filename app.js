@@ -100,6 +100,6 @@ app.post('/scrape', function(req, res){
     }) ;
 });
 
-app.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost');
+app.listen(process.env.PORT || env.NODE_PORT || 3000, env.NODE_IP || 'localhost' );
 
 console.log('Navigate your brower to: http://localhost:3000');
