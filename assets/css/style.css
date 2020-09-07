@@ -1,5 +1,5 @@
 body{
-background-color: #ededed;
+background-color: #000000;
 font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 font-weight: 300;
 }
@@ -28,13 +28,13 @@ article {
   width: 60%;
   margin: 0 auto;
   padding: 2%;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  border: 1px solid rgb(255, 0, 0);
+  background-color: rgb(230, 230, 230);
 }
 
 .logo{
 display: block;
-    width: 20%;
+    width: 50%;
     margin: 5px auto 15px;
     padding: 2%;
     background-color: #ededed;
@@ -55,7 +55,7 @@ header h2{
 
 header{
   padding: 2%;
-  background-color: #ACF3FD;
+  background-color: #8bc34a;
 }
 
 footer{

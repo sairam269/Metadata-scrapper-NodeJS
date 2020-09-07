@@ -1,5 +1,5 @@
-var express = require('express'),
-    fs = require('fs'),
+var mCache=require('./cacheMemory'),
+    express = require('express'),
     path = require('path'),
     request = require('request'),
     cheerio = require('cheerio'),
@@ -7,69 +7,99 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     env  = process.env;
 
-
 app.use(bodyParser.json());
 
 //support parsing of application/x-www-form-urlencoded post data
 app.use(bodyParser.urlencoded({extended: true}));
 
-//tell express that we want to use the www folder for our static assets
+//use static assets
 app.use(express.static(path.join(__dirname, 'assets')));
 
-app.post('/scrape', function(req, res){
-    res.setHeader('Content-Type', 'application/json');
+HandleErrorFunction=(res,err)=>{
+    res.end(JSON.stringify({error: 'There was an error of some kind'}));
+}
 
-    //make a new request to the URL provided in the HTTP POST request
-    request(req.body.url, function (error, response, responseHtml) {
-        var resObj = {};
+populateMetadata = (metadata,$,$title,$desc,$ogImage,$ogTitle,$ogDesc,$images)=>{
+    
+    if ($title) {
+        metadata.title = $title;
+    }
 
-        
-        if (error) {
-            res.end(JSON.stringify({error: 'There was an error of some kind'}));
-            return;
+    if ($desc) {
+        metadata.description = $desc;
+    }
+
+    if ($ogDesc) {
+        metadata.ogDescription = $ogDesc;
+    }
+
+    if ($ogImage && $ogImage.length){
+        metadata.ogImage = $ogImage;
+    }
+
+    if ($ogTitle && $ogTitle.length){
+        metadata.ogTitle = $ogTitle;
+    }
+
+    if ($images && $images.length){
+        metadata.images = [];
+
+        for (var i = 0; i < $images.length; i++) {
+            metadata.images.push($($images[i]).attr('src'));
         }
+    }
+    return metadata;
+}
 
-        //create the cheerio object
-        resObj = {},
-            //set a reference to the document that came back
+scrapeMetadata=(responseHtml)=>{
+
+    var metadata= {},
             $ = cheerio.load(responseHtml),
             
             $title = $('head title').text(),
             $desc = $('meta[name="description"]').attr('content'),
             $ogTitle = $('meta[property="og:title"]').attr('content'),
+            $ogDesc=$('meta[property="og:description"]').attr('content'),
             $ogImage = $('meta[property="og:image"]').attr('content'),
             $images = $('img');
 
-        if ($title) {
-            resObj.title = $title;
+        //console.log($);
+            
+    metadata=populateMetadata(metadata,$,$title,$desc,$ogImage,$ogTitle,$ogDesc,$images);
+
+    return metadata;
+}
+
+app.post('/scrape', function(req, res){
+
+    var metadata={};
+    var url=req.body.url;
+
+    if(mCache.checkChache(url)==1){
+        //console.log("from cache");
+        res.end(JSON.stringify(mCache.getCachedMetadata(url)));
+        //return;
+    }
+
+    res.setHeader('Content-Type', 'application/json');
+
+    request(req.body.url, function (error, response, responseHtml) {
+        
+        if (error) {
+            HandleErrorFunction(res,error);
+            return;
         }
 
-        if ($desc) {
-            resObj.description = $desc;
-        }
+        //Scrape URL with Cheerio
+        metadata = scrapeMetadata(responseHtml);
 
-        if ($ogImage && $ogImage.length){
-            resObj.ogImage = $ogImage;
-        }
+        mCache.setCacheMetadata(req.body.url,metadata);
 
-        if ($ogTitle && $ogTitle.length){
-            resObj.ogTitle = $ogTitle;
-        }
+        res.end(JSON.stringify(metadata));
 
-        if ($images && $images.length){
-            resObj.images = [];
-
-            for (var i = 0; i < $images.length; i++) {
-                resObj.images.push($($images[i]).attr('src'));
-            }
-        }
-
-        //send the response
-        res.end(JSON.stringify(resObj));
     }) ;
 });
 
-//listen for an HTTP request
 app.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost');
 
 console.log('Navigate your brower to: http://localhost:3000');

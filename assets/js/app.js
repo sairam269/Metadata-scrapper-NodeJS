@@ -1,70 +1,74 @@
-(function(_win, $){
+(function(_win, $){ 
 
-    'use strict';
+    'use strict'; 
 
-    /*global window: false */
+    /*global window: false */ 
+    var utils = {}; 
 
-    var utils = {};
+    //initialize the applcation 
+    utils.init = function(){ 
+        $(document).ready(function () { 
+            utils.start(); 
+        }); 
+    }; 
 
-    //initialize the applcation
-    utils.init = function(){
-        
-        $(document).ready(function () {
-            utils.start();
-        });
-    };
+    utils.start = function(){ 
+        utils.bindScrapeButton(); 
+    }; 
 
-    //start the application
-    utils.start = function(){
-        utils.bindScrapeButton();
-    };
+    utils.setupHandlers = function () { 
+        utils.bindScrapeButton(); 
+    }; 
 
-    utils.setupHandlers = function () {
-        utils.bindScrapeButton();
-    };
+    //check existence of DOM element 
+    utils.isExist=(element)=>{ 
+        return $(element).val() || $(element).val() === ''; 
+    } 
+ 
+    utils.showError=(element)=>{ 
+ 
+        $(element).text('Please enter a URL!'); $(element).addClass('error'); 
 
-    utils.bindScrapeButton = function () {
-        
-        $('#submit').on('click', function () {
+        //re-set the button 
+        setTimeout(function () { 
+            $(element).text('Scrape Page'); 
+            $(element).removeClass('error'); 
+        }, 2000); 
+    } 
+ 
+    //Trigger Scrape API call on button click
+    utils.bindScrapeButton = function () { 
+        $('#submit').on('click', function () { 
+             
+            if(!utils.isExist('#urlText')){ 
+                utils.showError('#submit'); 
+                return; 
+            } 
 
-            //if the text box is empty
-            if (!$('#urlText').val() || $('#urlText').val() === ''){
-                //warn the user
-                $('#submit').text('Please enter a URL!');
-                $('#submit').addClass('error');
+            $('#data-container').html(''); 
+            $('#ajax-loader-container').show(); 
 
-                //re-set the button
-                setTimeout(function () {
-                    $('#submit').text('Scrape Page');
-                    $('#submit').removeClass('error');
-                }, 2000);
+            $.ajax({ 
+                url: '/scrape', 
+                type: 'POST', 
+                data: {
+                    url: $('#urlText').val() 
+                }, 
+                success (jsonData) { 
+                    $('#ajax-loader-container').hide(); 
+                    console.warn('SUCCESS: '); 
+                    console.dir(jsonData); 
+                    $('#data-container').JSONView(jsonData); 
+                }, 
+                error (err) { 
+                    console.error('Error: ' + err); 
+                } 
 
-                return;
-            }
+            }); 
+        }); 
+    }; 
 
-            $('#data-container').html('');
-            $('#ajax-loader-container').show();
+    //initialize the applcation 
+    utils.init(); 
 
-            $.ajax({
-                url:  '/scrape',
-                type: 'POST',
-                data: {url:  $('#urlText').val() },
-                success (jsonData) {
-                    $('#ajax-loader-container').hide();
-
-                    console.warn('HERE SUCCESS: ');
-                    console.dir(jsonData);
-
-                    $('#data-container').JSONView(jsonData);
-                },
-                error (err) {
-                    console.error('HERE error: ' + err);
-                }
-            });
-
-        });
-    };
-
-    //initialize the applcation
-    utils.init();
 })(window, window.jQuery);
