@@ -38,7 +38,6 @@ describe('App',function(){
                 .set('Content-Type', 'application/json')
                 .send({ url:'' })
                 .then(function (res) {
-                    chai.expect(res).to.have.status(200);
                     const body=res.body;
                     chai.expect(body).to.contain.property('error');
                 })
@@ -47,6 +46,6 @@ describe('App',function(){
                 });
 
         });
-        
+
     });
 });
