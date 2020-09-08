@@ -78,11 +78,11 @@ app.post('/scrape', function(req, res){
     var url=req.body.url;
 
     res.setHeader('Content-Type', 'application/json');
-    
+
     if(mCache.checkChache(url)==1){
         //console.log("from cache");
         res.end(JSON.stringify(mCache.getCachedMetadata(url)));
-        //return;
+        return;
     }
 
     
