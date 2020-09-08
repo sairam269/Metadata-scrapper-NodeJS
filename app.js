@@ -15,6 +15,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 //use static assets
 app.use(express.static(path.join(__dirname, 'assets')));
 
+
+
 HandleErrorFunction=(res,err)=>{
     res.end(JSON.stringify({error: 'There was an error of some kind'}));
 }
@@ -100,6 +102,7 @@ app.post('/scrape', function(req, res){
     }) ;
 });
 
+
 app.listen(process.env.PORT || 5000);
 
-console.log('Navigate your brower to: http://localhost:3000');
+console.log('Navigate your brower to: http://localhost:5000');
