@@ -25,6 +25,17 @@ cd Metadata-scrapper-NodeJS
 npm install
 ```
 
+## Test the app
+
+To test the application we use <a href="https://www.npmjs.com/package/macho" target="_blank">macho</a> and <a href="https://www.npmjs.com/package/chai" target="_blank">chai</a>
+
+to test, run the following
+
+```bash
+npm run test
+```
+
+
 ## Run the app
 
 To start the express server, run the following

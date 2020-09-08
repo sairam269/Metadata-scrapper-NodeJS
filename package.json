@@ -15,7 +15,8 @@
     "request": "^2.88.2",
     "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.3",
-    "mocha": "^7.1.1"
+    "mocha": "^7.1.1",
+    "chai-http": "*"
   },
   "engines": {
     "node": "v11.3.0"
